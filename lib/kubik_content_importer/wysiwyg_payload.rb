@@ -27,7 +27,9 @@ module KubikContentImporter
     end
 
     def finalize_editorjs(document)
-      EditorjsNestedList.normalize_document(document).to_json
+      doc = document.deep_dup
+      EditorjsHeaderText.normalize_document!(doc)
+      EditorjsNestedList.normalize_document(doc).to_json
     end
 
     def editorjs_json?(string)

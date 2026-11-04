@@ -14,6 +14,15 @@ namespace :kubik_content_importer do
     KubikContentImporter.run!(only: %i[media_uploads meta_tags upload_reflections], dry_run: dry)
   end
 
+  desc 'Fill kubik_meta_tags OG/Twitter fields from SEO columns (IMPORTER_DRY_RUN=1)'
+  task backfill_meta_social: :environment do
+    dry = ENV['IMPORTER_DRY_RUN'].present?
+    abort 'Kubik::Metatagable::SocialMetaBackfill is not available' unless defined?(Kubik::Metatagable::SocialMetaBackfill)
+
+    result = Kubik::Metatagable::SocialMetaBackfill.backfill!(dry_run: dry)
+    puts "backfill_meta_social #{dry ? '(dry run)' : ''} updated=#{result[:updated]} skipped=#{result[:skipped]}"
+  end
+
   desc 'Copy slickr_navigations → kubik_navigation_items (same ids; IMPORTER_DRY_RUN=1)'
   task import_navigation: :environment do
     dry = ENV['IMPORTER_DRY_RUN'].present?

@@ -2,7 +2,7 @@
 
 Gem::Specification.new do |spec|
   spec.name = 'kubik_content_importer'
-  spec.version = '0.1.0'
+  spec.version = '0.1.1'
   spec.authors = ['Primate']
   spec.email = ['admin@primate.co.uk']
   spec.summary = 'Configurable CMS content importer (Slickr → Kubik)'

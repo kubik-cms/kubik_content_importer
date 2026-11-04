@@ -5,6 +5,13 @@ require 'kubik_content_importer/records/slickr_navigation'
 
 module KubikContentImporter
   module Targets
+    # Imports Slickr menu structure into Kubik::NavigationItem (same ids, ancestry minus slickr_master).
+    #
+    # URL semantics for host apps (e.g. Reading Schools):
+    # - Slickr "Page" → Kubik resource pointing at Page; Kubik will set uri from menu slugs (tree path).
+    # - Slickr "Custom Link" → Kubik link with link_location copied from slickr link column.
+    # - Legacy public menus used page slugs (/framework), not tree paths (/main-navigation/.../framework).
+    #   Importer does not flatten uri; host apps should resolve public hrefs when serializing nav (see app docs).
     class KubikNavigation
       SLICKR_MASTER_ID = Records::SlickrNavigation::SLICKR_MASTER_ID
 

@@ -27,8 +27,10 @@ module KubikContentImporter
           end
         end
 
+        backfill = backfill_social_meta_after_import! unless @dry_run
+
         Rails.logger.info "[kubik_content_importer] meta_tags done: imported=#{imported} skipped=#{skipped}"
-        { imported: imported, skipped: skipped }
+        { imported: imported, skipped: skipped, social_backfill: backfill }
       end
 
       private
@@ -47,6 +49,8 @@ module KubikContentImporter
           metatagable_type: kubik_type,
           metatagable_id: kubik_id
         )
+        record = kubik_type.safe_constantize&.find_by(id: kubik_id)
+
         target.assign_attributes(
           title_tag: slickr_tag.title_tag,
           meta_description: slickr_tag.meta_description,
@@ -55,6 +59,11 @@ module KubikContentImporter
           twitter_title: slickr_tag.twitter_title,
           twitter_description: slickr_tag.twitter_description
         )
+
+        if record && defined?(Kubik::Metatagable::SocialMetaBackfill)
+          target.assign_attributes(Kubik::Metatagable::SocialMetaBackfill.attributes_to_apply(target, record))
+        end
+
         target.save!
         true
       end
@@ -63,6 +72,12 @@ module KubikContentImporter
         return legacy_id unless kubik_type == 'Page' && defined?(Page)
 
         Page.find_by(legacy_slickr_id: legacy_id)&.id
+      end
+
+      def backfill_social_meta_after_import!
+        return unless defined?(Kubik::Metatagable::SocialMetaBackfill)
+
+        Kubik::Metatagable::SocialMetaBackfill.backfill!
       end
     end
   end

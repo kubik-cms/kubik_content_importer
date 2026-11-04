@@ -17,7 +17,8 @@ module KubikContentImporter
         type = block['type']
 
         if %w[unordered-list-item ordered-list-item].include?(type)
-          style = type.include?('ordered') ? 'ordered' : 'unordered'
+          # "unordered-list-item" contains the substring "ordered", so match the type exactly.
+          style = type == 'ordered-list-item' ? 'ordered' : 'unordered'
           items = []
           while index < blocks.length && blocks[index]['type'] == type
             items << DraftjsInlineHtml.convert(blocks[index], entity_map)
@@ -227,7 +228,13 @@ module KubikContentImporter
     end
 
     def header_block(text, level)
-      { 'type' => 'header', 'data' => { 'text' => text, 'level' => level } }
+      {
+        'type' => 'header',
+        'data' => {
+          'text' => EditorjsHeaderText.plain_text(text),
+          'level' => level
+        }
+      }
     end
 
     def paragraph_block(text)
